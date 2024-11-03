@@ -5,7 +5,7 @@ import { Button } from "primereact/button";
 import { Calendar } from "primereact/calendar";
 import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
-import { Dispatch, SetStateAction, useState } from "react";
+import React, { Dispatch, SetStateAction, useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import * as yup from "yup";
@@ -22,16 +22,15 @@ const schema = yup.object().shape({
 });
 
 const MessageDialog = ({
-  modalState: [openModal, setOpenModal],
-  refreshState,
+  modalState = [false, () => {}],
+  refreshState = [false, () => {}],
 }: {
   modalState: [boolean, Dispatch<SetStateAction<boolean>>];
   refreshState: [boolean, Dispatch<SetStateAction<boolean>>];
 }) => {
   // #region ===== Data =====
-  // ** State Management
-  const [refresh, setRefresh] = refreshState!;
-  // ** Form Handler
+  const [openModal, setOpenModal] = modalState;
+  const [refresh, setRefresh] = refreshState;
   const {
     control,
     handleSubmit,
@@ -40,7 +39,7 @@ const MessageDialog = ({
   } = useForm<MessagePayload>({
     defaultValues: {
       email: "",
-      date: format(new Date(), "yyyy-MM-dd"),
+      date: "", // Set as Date object
       description: "",
     },
     resolver: yupResolver(schema),
@@ -48,12 +47,18 @@ const MessageDialog = ({
   // #endregion
 
   // #region ===== Function =====
-  // ** Handle
   const onSubmit: SubmitHandler<MessagePayload> = async (data) => {
+    const formattedData = {
+      ...data,
+      date:
+        typeof data.date === "string"
+          ? data.date
+          : format(data.date, "yyyy-MM-dd"),
+    };
     try {
       await axios.post(
         `${process.env.NEXT_PUBLIC_API_DEV}/api/message/add`,
-        data
+        formattedData
       );
       toast.success("Data Successfully Added", {
         autoClose: 2000,
@@ -64,21 +69,25 @@ const MessageDialog = ({
       reset();
       setOpenModal(false);
     } catch (error) {
-      console.log(error);
+      toast.error("Failed to add data", { autoClose: 2000 });
+      console.error("Error adding data:", error);
     }
   };
   // #endregion
+
   return (
     <Dialog
       header="Create Message"
       visible={openModal}
       style={{ width: "50vw" }}
       onHide={() => {
-        if (!openModal) return;
         setOpenModal(false);
         reset();
       }}
     >
+      <button onClick={() => console.log({ modalState, refreshState })}>
+        Cek ModalState
+      </button>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="my-4">
           <div className="grid grid-cols-4 mb-2">
@@ -107,10 +116,14 @@ const MessageDialog = ({
                 <>
                   <Calendar
                     className="col-span-3 border p-2"
-                    value={field.value as any}
-                    onChange={(e) => field.onChange(e.value)}
+                    value={field.value ? new Date(field.value) : null}
+                    onChange={(e) =>
+                      field.onChange(
+                        e.value ? format(e.value, "yyyy-MM-dd") : ""
+                      )
+                    }
                   />
-                  {errors.date && (
+                  {errors.date?.message && (
                     <p className="text-red-500 text-sm col-span-3">
                       {errors.date.message}
                     </p>

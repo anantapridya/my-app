@@ -18,7 +18,6 @@ const MessageTable = () => {
   const [lazyState, setLazyState] = useState({
     first: 0,
     rows: 10,
-    page: 1,
     filters: {
       global: { value: "", matchMode: "LIKE" },
     },
@@ -39,14 +38,14 @@ const MessageTable = () => {
       if (response.ok) {
         const data = await response.json();
         setTotalRecords(data.data.length);
-        const sortedData = [...data.data].sort(
+        const sortedData = data.data.sort(
           (a: MessagePayload, b: MessagePayload) => {
             const field = lazyState.sortField as keyof MessagePayload;
-            if (!field || !a[field] || !b[field]) return 0;
+            if (!field) return 0;
 
-            const order = lazyState.sortOrder === -1 ? -1 : 1;
-            if (a[field]! < b[field]!) return -1 * order;
-            if (a[field]! > b[field]!) return 1 * order;
+            // Perform sorting only if the field exists
+            if (a[field] < b[field]) return -1 * lazyState.sortOrder;
+            if (a[field] > b[field]) return 1 * lazyState.sortOrder;
             return 0;
           }
         );
@@ -84,7 +83,6 @@ const MessageTable = () => {
           className="px-3 py-2 bg-blue-500 text-white"
           onClick={() => setOpenModal(true)}
         />
-        {/* <button onClick={() => setOpenModal(true)}>Add Data</button> */}
       </div>
       <MessageDialog
         refreshState={[refreshTable, setRefreshTable]}

@@ -23,16 +23,11 @@ export const authOptions: NextAuthOptions = {
                     },
                 });
 
-                console.log("Response status:", res.status);
-
                 const result = await res.json();
-                console.log("Login response data:", result);
-
                 if (res.ok && result.status === "success" && result.data) {
                     const { username, email, token } = result.data;
                     return { id: email, name: username, email, token };
                 } else {
-                    console.log("Login failed:", result.error || "Invalid credentials");
                     throw new Error(result.error || "Invalid credentials");
                 }
             }
@@ -57,7 +52,7 @@ export const authOptions: NextAuthOptions = {
     pages: {
         signIn: "/login",
     },
-    secret: process.env.NEXTAUTH_URL
+    secret: process.env.NEXTAUTH_SECRET,
 };
 
 export default NextAuth(authOptions);
