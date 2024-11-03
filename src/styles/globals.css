@@ -25,3 +25,36 @@ body {
     )
     rgb(var(--background-start-rgb));
 }
+
+.custom-datatable .p-datatable-wrapper {
+  max-height: none !important;
+  z-index: 0;
+}
+
+.custom-datatable .p-datatable-header {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.p-dialog-title {
+  font-size: 1.125rem;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 155%;
+  /* 1.74375rem */
+  letter-spacing: 0.00169rem;
+}
+
+.custom-datatable thead tr,
+.custom-datatable tbody tr {
+  font-size: 0.875rem !important;
+}
+
+.custom-datatable .p-column-title {
+  font-weight: 500 !important;
+}
+
+.custom-datatable tbody td {
+  padding-bottom: 0.25rem;
+  padding-top: 0.25rem;
+}
