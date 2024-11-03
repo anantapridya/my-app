@@ -1,5 +1,5 @@
 "use client";
-import LogoutButton from "@/pages/components/ButtonLogout";
+import LogoutButton from "@/components/ButtonLogout";
 import { useSession } from "next-auth/react";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
